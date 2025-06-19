@@ -1,0 +1,26 @@
+version: '3.8'
+
+services:
+  markdown-editor:
+    build: .
+    ports:
+      - "8080:80"
+    restart: unless-stopped
+    container_name: enhanced-markdown-editor
+    environment:
+      - NGINX_HOST=localhost
+      - NGINX_PORT=80
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.markdown-editor.rule=Host(`markdown-editor.localhost`)"
+      - "traefik.http.services.markdown-editor.loadbalancer.server.port=80"
+
+networks:
+  default:
+    name: markdown-editor-network
